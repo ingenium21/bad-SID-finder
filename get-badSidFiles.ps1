@@ -3,7 +3,7 @@ param (
     [Parameter(Mandatory=$true, Position=0)]
     [string]$path
 )
-# Define the function to check if a SID is valid
+
 function IsValidSID([string]$sid) {
     try {
         $null = New-Object System.Security.Principal.SecurityIdentifier($sid)
@@ -13,8 +13,9 @@ function IsValidSID([string]$sid) {
     }
 }
 
-# Define the function to crawl a directory and return files with bad SIDs
+
 function GetFilesWithBadSIDs([string]$path) {
+    Write-Host "checking files..."
     $files = Get-ChildItem -Path $path -Recurse -File
     $badSIDs = [System.Collections.Concurrent.ConcurrentBag[Object]]::new()
     $maxThreads = 4
@@ -44,24 +45,30 @@ function GetFilesWithBadSIDs([string]$path) {
     return $badSIDs
 }
 
-# Define the function to process files with bad SIDs
+
 function ProcessFilesWithBadSIDs([array]$files) {
-    foreach ($file in $files) {
-        Write-Host "File $($file.File) has bad SID $($file.SID)"}
-    #     $result = [PSCustomObject]@{
-    #         File = $file.FullName
-    #         SID =  $ace.IdentifyReference.Value
-    #     }
-    #     $results += $result
-    # }
-    # $results | Export-Csv -Path .\results.csv -NoTypeInformation
+    write-host $files.Length
+    if ($files.Length -gt 0) {
+        foreach ($file in $files) {
+            Write-Host "File $($file.File) has bad SID $($file.SID)"}
+        #     $result = [PSCustomObject]@{
+        #         File = $file.FullName
+        #         SID =  $ace.IdentifyReference.Value
+        #     }
+        #     $results += $result
+        # }
+        # $results | Export-Csv -Path .\results.csv -NoTypeInformation'
+    }
+    else {
+        Write-Host -ForegroundColor Green "No bad files!"
+    }
 }
 
-# Define the main function to run the script
+
 function Main() {
     $files = GetFilesWithBadSIDs $path
     ProcessFilesWithBadSIDs $files
 }
 
-# Call the main function
+
 Main
