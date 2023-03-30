@@ -10,14 +10,16 @@ function IsValidSID([String]$sid){
         return $true
     }
     else {
+        write-host -ForegroundColor Orange ("SID {0} is valid" -f $sid)
         return $false
     }
 }
 
 $files = Get-ChildItem -Recurse -Path $path
 foreach ($file in $files) {
-    $sids = (Get-Acl $file_path).Access | Where-Object { $_.IdentityReference.Value -match "^S-1-5-21-\d{1,10}-\d{1,10}-\d{1,10}-\d{1,10}-\d{1,10}$" } | Select-Object -ExpandProperty IdentityReference
+    $sids = (Get-Acl $file.FullName).Access | Where-Object { $_.IdentityReference.Value -match "^S-1-5-21-\d{1,10}-\d{1,10}-\d{1,10}-\d{1,10}-\d{1,10}$" } | Select-Object -ExpandProperty IdentityReference
     foreach ($sid in $sids) {
+        write-host -ForegroundColor Yellow ("Checking SID: {0} from file: {1}" -f $sid.Value, $file)
         $sidString = $sid.Value
         $test = IsValidSID($sidString)
         if ($test -eq $true) {
