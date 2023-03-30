@@ -17,7 +17,8 @@ function IsValidSID([String]$sid){
 
 $files = Get-ChildItem -Recurse -Path $path
 foreach ($file in $files) {
-    $sids = (Get-Acl $file.FullName).Access | Where-Object { $_.IdentityReference.Value -match "^S-1-5-21-\d{1,10}-\d{1,10}-\d{1,10}-\d{1,10}-\d{1,10}$" } | Select-Object -ExpandProperty IdentityReference
+    write-host -ForegroundColor white "Checking file: {0}" -f $file.FullName
+    $sids = (Get-Acl $file.FullName).Access | Where-Object { $_.IdentityReference.Value -match "S-1-\d.+" } | Select-Object -ExpandProperty IdentityReference
     foreach ($sid in $sids) {
         write-host -ForegroundColor Yellow ("Checking SID: {0} from file: {1}" -f $sid.Value, $file)
         $sidString = $sid.Value
